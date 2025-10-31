@@ -1,107 +1,104 @@
-# Windows-basic-commands-batchscript
+# Linux-File-IO-Systems-locking
+Ex07-Linux File-IO Systems-locking
 # AIM:
-To execute Windows basic commands and batch scripting
+To Write a C program that illustrates files copying and locking
 
 # DESIGN STEPS:
 
 ### Step 1:
 
-Navigate to any Windows environment installed on the system or installed inside a virtual environment like virtual box/vmware 
+Navigate to any Linux environment installed on the system or installed inside a virtual environment like virtual box/vmware or online linux JSLinux (https://bellard.org/jslinux/vm.html?url=alpine-x86.cfg&mem=192) or docker.
 
 ### Step 2:
 
-Write the Windows commands / batch file
-Save each script in a file with a .bat extension.
-Ensure you have the necessary permissions to perform the operations.
-Adapt paths as needed based on your system configuration.
+Write the C Program using Linux IO Systems locking
+
 ### Step 3:
 
-Execute the necessary commands/batch file for the desired output. 
+Execute the C Program for the desired output. 
 
+# PROGRAM:
 
-
-
-# WINDOWS COMMANDS:
-## Exercise 1: Basic Directory and File Operations
-Create a directory named "MyLab" on the desktop.
-
-
-## COMMAND AND OUTPUT
-mkdir %userprofile%\Desktop\MyLab
-
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/1feba45d-0779-48f3-9e31-f5a0350f0a66)
-
-
-Change to the "MyLab" directory and create an empty text file named "MyFile.txt" inside it.
-
-
-## COMMAND AND OUTPUT
-cd %userprofile%\Desktop\MyLab
-
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/2f186507-dd16-4ff6-ba9d-726aa06afb18)
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/7423c134-d5e4-4596-b6bc-ba9df42eb03d)
-
-
-List the contents of the "MyLab" directory.
-
-
-## COMMAND AND OUTPUT
-dir %userprofile%\Desktop\MyLab
-
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/7185c5be-7400-4896-b2a7-761467002990)
-
-
-Copy "MyFile.txt" to a new folder named "Backup" on the desktop.
-
-## COMMAND AND OUTPUT
-
-mkdir %userprofile%\Desktop\Backup
-
-copy MyFile.txt %userprofile%\Desktop\Backup
-
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/1f984e02-cf25-41c7-9534-4ff073959a2a)
-
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/1f6310cd-f10a-4e03-89ba-ff14f15a29cf)
-
-
-
-Move the "MyLab" directory to the "Documents" folder.
-
-
-## COMMAND AND OUTPUT
-mv Myfile.txt %userprofile%\Documents
-
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/a74e26cf-e31f-4372-bc5e-80c890174e37)
-
-
-
-
-## Exercise 2: Advanced Batch Scripting
-Create a batch script named "BackupScript.bat" that creates a backup of files with the ".docx" extension from the "Documents" folder to a new folder named "DocBackup" on the desktop.
+## 1.To Write a C program that illustrates files copying 
 ```
-@echo off
-mkdir %userprofile%\Desktop\DocBackup
-copy %userprofile%\Documents\*.docx %userprofile%\Desktop\DocBackup
-echo Backup completed successfully!
+#include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdlib.h>
+int main()
+{
+char block[1024];
+int in, out;
+int nread;
+in = open("filecopy.c", O_RDONLY);
+out = open("file.out", O_WRONLY|O_CREAT, S_IRUSR|S_IWUSR);
+while((nread = read(in,block,sizeof(block))) > 0)
+write(out,block,nread);
+exit(0);
+}
 ```
-Modify the script to delete files with the ".docx" extension from the "Documents" folder after creating the backup.
+
+
+
+
+
+
+## 2.To Write a C program that illustrates files locking
 ```
-@echo off
-mkdir %userprofile%\Desktop\DocBackup
-copy %userprofile%\Documents\*.docx %userprofile%\Desktop\DocBackup
-del %userprofile%\Documents\*.docx
-echo Backup and deletion completed successfully!
+#include <fcntl.h>
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/file.h>
+int main (int argc, char* argv[])
+{ char* file = argv[1];
+ int fd;
+ struct flock lock;
+ printf ("opening %s\n", file);
+ /* Open a file descriptor to the file. */
+ fd = open (file, O_WRONLY);
+// acquire shared lock
+if (flock(fd, LOCK_SH) == -1) {
+    printf("error");
+}else
+{printf("Acquiring shared lock using flock");
+}
+getchar();
+// non-atomically upgrade to exclusive lock
+// do it in non-blocking mode, i.e. fail if can't upgrade immediately
+if (flock(fd, LOCK_EX | LOCK_NB) == -1) {
+    printf("error");
+}else
+{printf("Acquiring exclusive lock using flock");}
+getchar();
+// release lock
+// lock is also released automatically when close() is called or process exits
+if (flock(fd, LOCK_UN) == -1) {
+    printf("error");
+}else{
+printf("unlocking");
+}
+getchar();
+close (fd);
+return 0;
+}
 ```
 
 
 
 ## OUTPUT
+filecopy.o
 
-![image](https://github.com/23004513/Windows-basic-commands-batchscript/assets/138973069/a8e01095-f652-4407-896d-272deb28d452)
 
+<img width="499" height="93" alt="Screenshot 2025-10-12 092717" src="https://github.com/user-attachments/assets/db3bf8b5-a248-4606-9512-d24f9baa03ca" />
+
+
+lock.o
+
+
+<img width="517" height="590" alt="image" src="https://github.com/user-attachments/assets/ef041efb-3722-49d4-b16d-bddce1dd94b1" />
 
 
 
 # RESULT:
-The commands/batch files are executed successfully.
-
+The programs are executed successfully.
